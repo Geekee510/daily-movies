@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>每日新片豆瓣评分</title>
+<title>每周新片豆瓣评分</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f4f4f8;color:#333}
@@ -12,6 +12,7 @@ h1{font-size:22px;font-weight:700;margin-bottom:4px}
 .sub{color:#999;font-size:13px;margin-bottom:22px}
 .cards{display:flex;flex-direction:column;gap:16px}
 .card{background:#fff;border-radius:12px;box-shadow:0 2px 14px rgba(0,0,0,.08);overflow:hidden}
+.card.hidden{display:none}
 .card-header{display:flex;align-items:center;padding:14px 16px;background:#1a1a2e;color:#fff;gap:10px}
 .card-header .num{background:rgba(255,255,255,.2);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}
 .card-header .title{flex:1;font-size:16px;font-weight:600}
@@ -20,7 +21,6 @@ h1{font-size:22px;font-weight:700;margin-bottom:4px}
 .card-header .date{font-size:12px;opacity:.8}
 .card-body{padding:14px 16px}
 .info{font-size:13px;color:#666;line-height:1.6;margin-bottom:4px}
-.info{font-size:13px;color:#666;line-height:1.6}
 .info:first-child{margin-top:0}
 .search-link{color:#1a73e8;text-decoration:none}
 .search-link:hover{text-decoration:underline}
@@ -32,6 +32,10 @@ h1{font-size:22px;font-weight:700;margin-bottom:4px}
 .dbl{color:#06be6b;text-decoration:none;font-size:13px;margin-left:auto}
 .dbl:hover{text-decoration:underline}
 .na{color:#ccc;font-size:13px;margin-left:auto}
+.pagination{display:flex;justify-content:center;gap:8px;margin:24px 0}
+.page-btn{padding:8px 14px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#333;cursor:pointer;font-size:14px}
+.page-btn:hover{background:#f0f0f0}
+.page-btn.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
 .legend{display:flex;gap:14px;margin-top:20px;font-size:12px;color:#aaa}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:3px}
 .dot.high{background:#e06c00}.dot.mid{background:#27ae60}.dot.low{background:#e74c3c}
@@ -41,9 +45,9 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
 <body>
 <div class="wrap">
   <h1>🎬 每周新片豆瓣评分</h1>
-  <p class="sub">数据来源：电影港 · 豆瓣 &nbsp;|&nbsp; 最后更新：2026年03月20日 18:58 &nbsp;|&nbsp; 共 9 部</p>
+  <p class="sub">数据来源：电影港 · 豆瓣 &nbsp;|&nbsp; 最后更新：2026年03月20日 19:03 &nbsp;|&nbsp; 共 9 部</p>
   <div class="cards">
-      <div class="card">
+      <div class="card page-1">
         <div class="card-header">
           <span class="num">1</span>
           <span class="title"><a href="https://www.dygangs.net/ys/20260320/59325.htm" target="_blank">是的2025</a></span>
@@ -59,7 +63,7 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
           <span class="na">暂无</span>
         </div>
       </div>
-      <div class="card">
+      <div class="card page-1">
         <div class="card-header">
           <span class="num">2</span>
           <span class="title"><a href="https://www.dygangs.net/ys/20260320/59324.htm" target="_blank">爱的证明</a></span>
@@ -75,7 +79,7 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
           <span class="na">暂无</span>
         </div>
       </div>
-      <div class="card">
+      <div class="card page-1">
         <div class="card-header">
           <span class="num">3</span>
           <span class="title"><a href="https://www.dygangs.net/ys/20260320/59323.htm" target="_blank">德累斯顿太阳报</a></span>
@@ -91,7 +95,7 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
           <span class="na">暂无</span>
         </div>
       </div>
-      <div class="card">
+      <div class="card page-1">
         <div class="card-header">
           <span class="num">4</span>
           <span class="title"><a href="https://www.dygangs.net/ys/20260320/59322.htm" target="_blank">希望的鹳鸟</a></span>
@@ -107,7 +111,7 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
           <span class="na">暂无</span>
         </div>
       </div>
-      <div class="card">
+      <div class="card page-1">
         <div class="card-header">
           <span class="num">5</span>
           <span class="title"><a href="https://www.dygangs.net/ys/20260320/59321.htm" target="_blank">千万不要跟着我</a></span>
@@ -123,7 +127,7 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
           <span class="na">暂无</span>
         </div>
       </div>
-      <div class="card">
+      <div class="card page-1">
         <div class="card-header">
           <span class="num">6</span>
           <span class="title"><a href="https://www.dygangs.net/ys/20260320/59320.htm" target="_blank">极速求生</a></span>
@@ -139,7 +143,7 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
           <span class="na">暂无</span>
         </div>
       </div>
-      <div class="card">
+      <div class="card page-1">
         <div class="card-header">
           <span class="num">7</span>
           <span class="title"><a href="https://www.dygangs.net/ys/20260319/59318.htm" target="_blank">惊声尖叫7</a></span>
@@ -155,7 +159,7 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
           <span class="na">暂无</span>
         </div>
       </div>
-      <div class="card">
+      <div class="card page-1">
         <div class="card-header">
           <span class="num">8</span>
           <span class="title"><a href="https://www.dygangs.net/ys/20260319/59317.htm" target="_blank">飞行家</a></span>
@@ -171,7 +175,7 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
           <span class="na">暂无</span>
         </div>
       </div>
-      <div class="card">
+      <div class="card page-1">
         <div class="card-header">
           <span class="num">9</span>
           <span class="title"><a href="https://www.dygangs.net/ys/20260319/59315.htm" target="_blank">麦哲伦</a></span>
@@ -188,6 +192,7 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
         </div>
       </div>
   </div>
+  
   <div class="legend">
     <span><span class="dot high"></span>8分及以上</span>
     <span><span class="dot mid"></span>6~8分</span>
@@ -195,5 +200,14 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
   </div>
   <footer>每周自动更新 · 收藏此页书签永久有效</footer>
 </div>
+<script>
+function showPage(n){
+  document.querySelectorAll('.card').forEach(c=>c.classList.add('hidden'));
+  document.querySelectorAll('.card.page-'+n).forEach(c=>c.classList.remove('hidden'));
+  document.querySelectorAll('.page-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.page-btn')[n-1]&&document.querySelectorAll('.page-btn')[n-1].classList.add('active');
+}
+showPage(1);
+</script>
 </body>
 </html>

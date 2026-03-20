@@ -202,13 +202,24 @@ def merge_movies(existing, new_movies):
 
 
 # ──────────────────────────────────────────
-# 4. 渲染 index.html（卡片式布局）
+# 4. 渲染 index.html（卡片式布局 + 分页）
 # ──────────────────────────────────────────
+PAGE_SIZE = 10
+
 def render_html(all_movies):
     updated_at = datetime.now().strftime("%Y年%m月%d日 %H:%M")
+    total_pages = (len(all_movies) + PAGE_SIZE - 1) // PAGE_SIZE
+
+    # 生成分页导航的HTML
+    pagination_html = ""
+    if total_pages > 1:
+        for p in range(1, total_pages + 1):
+            pagination_html += f'<button class="page-btn" onclick="showPage({p})">{p}</button>'
+        pagination_html = f'<div class="pagination">{pagination_html}</div>'
 
     cards = ""
     for i, m in enumerate(all_movies, 1):
+        page_num = (i - 1) // PAGE_SIZE + 1
         rating   = m.get("rating") or "—"
         count    = m.get("count") or ""
         db_link  = m.get("douban_link") or ""
@@ -267,7 +278,7 @@ def render_html(all_movies):
         intro_html = f'<p class="intro">{intro}</p>' if intro else ''
 
         cards += f"""
-      <div class="card">
+      <div class="card page-{page_num}">
         <div class="card-header">
           <span class="num">{i}</span>
           <span class="title"><a href="{m['source_url']}" target="_blank">{m['title']}</a></span>
@@ -289,7 +300,7 @@ def render_html(all_movies):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>每日新片豆瓣评分</title>
+<title>每周新片豆瓣评分</title>
 <style>
 *{{box-sizing:border-box;margin:0;padding:0}}
 body{{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f4f4f8;color:#333}}
@@ -298,6 +309,7 @@ h1{{font-size:22px;font-weight:700;margin-bottom:4px}}
 .sub{{color:#999;font-size:13px;margin-bottom:22px}}
 .cards{{display:flex;flex-direction:column;gap:16px}}
 .card{{background:#fff;border-radius:12px;box-shadow:0 2px 14px rgba(0,0,0,.08);overflow:hidden}}
+.card.hidden{{display:none}}
 .card-header{{display:flex;align-items:center;padding:14px 16px;background:#1a1a2e;color:#fff;gap:10px}}
 .card-header .num{{background:rgba(255,255,255,.2);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}}
 .card-header .title{{flex:1;font-size:16px;font-weight:600}}
@@ -306,7 +318,6 @@ h1{{font-size:22px;font-weight:700;margin-bottom:4px}}
 .card-header .date{{font-size:12px;opacity:.8}}
 .card-body{{padding:14px 16px}}
 .info{{font-size:13px;color:#666;line-height:1.6;margin-bottom:4px}}
-.info{{font-size:13px;color:#666;line-height:1.6}}
 .info:first-child{{margin-top:0}}
 .search-link{{color:#1a73e8;text-decoration:none}}
 .search-link:hover{{text-decoration:underline}}
@@ -318,6 +329,10 @@ h1{{font-size:22px;font-weight:700;margin-bottom:4px}}
 .dbl{{color:#06be6b;text-decoration:none;font-size:13px;margin-left:auto}}
 .dbl:hover{{text-decoration:underline}}
 .na{{color:#ccc;font-size:13px;margin-left:auto}}
+.pagination{{display:flex;justify-content:center;gap:8px;margin:24px 0}}
+.page-btn{{padding:8px 14px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#333;cursor:pointer;font-size:14px}}
+.page-btn:hover{{background:#f0f0f0}}
+.page-btn.active{{background:#1a1a2e;color:#fff;border-color:#1a1a2e}}
 .legend{{display:flex;gap:14px;margin-top:20px;font-size:12px;color:#aaa}}
 .dot{{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:3px}}
 .dot.high{{background:#e06c00}}.dot.mid{{background:#27ae60}}.dot.low{{background:#e74c3c}}
@@ -330,6 +345,7 @@ footer{{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-bott
   <p class="sub">数据来源：电影港 · 豆瓣 &nbsp;|&nbsp; 最后更新：{updated_at} &nbsp;|&nbsp; 共 {len(all_movies)} 部</p>
   <div class="cards">{cards}
   </div>
+  {pagination_html}
   <div class="legend">
     <span><span class="dot high"></span>8分及以上</span>
     <span><span class="dot mid"></span>6~8分</span>
@@ -337,6 +353,15 @@ footer{{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-bott
   </div>
   <footer>每周自动更新 · 收藏此页书签永久有效</footer>
 </div>
+<script>
+function showPage(n){{
+  document.querySelectorAll('.card').forEach(c=>c.classList.add('hidden'));
+  document.querySelectorAll('.card.page-'+n).forEach(c=>c.classList.remove('hidden'));
+  document.querySelectorAll('.page-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.page-btn')[n-1]&&document.querySelectorAll('.page-btn')[n-1].classList.add('active');
+}}
+showPage(1);
+</script>
 </body>
 </html>"""
 
