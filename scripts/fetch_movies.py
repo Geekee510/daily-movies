@@ -89,19 +89,38 @@ def fetch_movie_detail(url):
         category_match = re.search(r"◎类　　别[:：]\s*(.+?)(?:\n|$)", text)
         category = category_match.group(1).strip() if category_match else ""
         
-        # 导演
+        # 导演 - 处理 "中文名 英文名" 格式
         director_match = re.search(r"◎导　　演[:：]\s*(.+?)(?:\n◎|$)", text)
         director = director_match.group(1).strip() if director_match else ""
-        # 只取导演名字（不要英文名）
-        director = director.split(" ")[0] if director else ""
+        # 把 &middot; 替换成点
+        director = director.replace("&middot;", "·")
+        # 按空格分割，取第一个元素（中文名），去掉中间的点
+        director = director.split(" ")[0].replace("·", "") if director else ""
         
-        # 主演
+        # 主演 - 处理 "中文名 英文名" 格式（网页用<br />换行）
         actor_match = re.search(r"◎主　　演[:：]\s*(.+?)(?:\n◎|$)", text, re.DOTALL)
-        actors = actor_match.group(1).strip() if actor_match else ""
-        # 清理主演名单：换行加空格，去多余空白
-        actors = re.sub(r"\s+", " ", actors).strip()
-        # 只取前5个主演
-        actor_list = actors.split(" ")[:5]
+        actors_raw = actor_match.group(1).strip() if actor_match else ""
+        # 把 <br /> 替换成换行符
+        actors_raw = re.sub(r"<br\s*/?>", "\n", actors_raw, flags=re.I)
+        # 把 &middot; 替换成点
+        actors_raw = actors_raw.replace("&middot;", "·")
+        # 按换行分割
+        actor_lines = actors_raw.split("\n")
+        actor_list = []
+        for line in actor_lines:
+            # 去掉前导全角空格和普通空格
+            line = line.lstrip("　 ").strip()
+            if not line:
+                continue
+            # 按空格分割（中文名和英文名之间的空格），取第一个元素
+            parts = line.split(" ")
+            if parts:
+                # 去掉中文名中间的点（·）
+                name = parts[0].replace("·", "").strip()
+                if name and name not in actor_list:
+                    actor_list.append(name)
+                    if len(actor_list) >= 5:
+                        break
         actors_short = " / ".join(actor_list) if actor_list else ""
         
         # 简介
