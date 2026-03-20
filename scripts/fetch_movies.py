@@ -30,7 +30,7 @@ HTML_FILE = os.path.join(ROOT, "index.html")
 
 
 # ──────────────────────────────────────────
-# 1. 抓取电影港新片
+# 1. 抓取电影港新片列表
 # ──────────────────────────────────────────
 def fetch_new_movies(days=2):
     url = "https://www.dygangs.net/ys/index.htm"
@@ -67,6 +67,53 @@ def fetch_new_movies(days=2):
     movies.sort(key=lambda x: x["date"], reverse=True)
     print(f"✅ 找到 {len(movies)} 部新片")
     return movies
+
+
+# ──────────────────────────────────────────
+# 1.1 抓取电影详情页信息
+# ──────────────────────────────────────────
+def fetch_movie_detail(url):
+    """从电影港详情页抓取：产地、类别、主演、简介"""
+    try:
+        resp = requests.get(url, headers=HEADERS, timeout=15)
+        resp.encoding = "gb2312"
+        soup = BeautifulSoup(resp.text, "html.parser")
+        
+        text = soup.get_text()
+        
+        # 产地
+        country_match = re.search(r"◎产　　地[:：]\s*(.+?)(?:\n|$)", text)
+        country = country_match.group(1).strip() if country_match else ""
+        
+        # 类别
+        category_match = re.search(r"◎类　　别[:：]\s*(.+?)(?:\n|$)", text)
+        category = category_match.group(1).strip() if category_match else ""
+        
+        # 主演
+        actor_match = re.search(r"◎主　　演[:：]\s*(.+?)(?:\n◎|$)", text, re.DOTALL)
+        actors = actor_match.group(1).strip() if actor_match else ""
+        # 清理主演名单：换行加空格，去多余空白
+        actors = re.sub(r"\s+", " ", actors).strip()
+        # 只取前5个主演
+        actor_list = actors.split(" ")[:5]
+        actors_short = " / ".join(actor_list) if actor_list else ""
+        
+        # 简介
+        intro_match = re.search(r"◎简　　介\s*\n?　*(.+?)(?:\n【|$)", text, re.DOTALL)
+        intro = intro_match.group(1).strip() if intro_match else ""
+        # 清理简介：去掉多余空白，取前100字
+        intro = re.sub(r"\s+", " ", intro).strip()
+        intro = intro[:100] + "..." if len(intro) > 100 else intro
+        
+        return {
+            "country": country,
+            "category": category,
+            "actors": actors_short,
+            "intro": intro
+        }
+    except Exception as e:
+        print(f"  ⚠️  详情页抓取失败: {e}")
+        return {"country": "", "category": "", "actors": "", "intro": ""}
 
 
 # ──────────────────────────────────────────
@@ -129,40 +176,68 @@ def merge_movies(existing, new_movies):
 
 
 # ──────────────────────────────────────────
-# 4. 渲染 index.html
+# 4. 渲染 index.html（卡片式布局）
 # ──────────────────────────────────────────
 def render_html(all_movies):
     updated_at = datetime.now().strftime("%Y年%m月%d日 %H:%M")
 
-    rows = ""
+    cards = ""
     for i, m in enumerate(all_movies, 1):
-        rating    = m.get("rating") or "—"
-        count     = m.get("count") or ""
-        db_link   = m.get("douban_link") or ""
-        found     = m.get("found_name") or ""
-        date_fmt  = f"{m['date'][:4]}-{m['date'][4:6]}-{m['date'][6:]}"
+        rating   = m.get("rating") or "—"
+        count    = m.get("count") or ""
+        db_link  = m.get("douban_link") or ""
+        found    = m.get("found_name") or ""
+        date_fmt = f"{m['date'][:4]}-{m['date'][4:6]}-{m['date'][6:]}"
+        
+        # 新增字段
+        country  = m.get("country") or ""
+        category = m.get("category") or ""
+        actors   = m.get("actors") or ""
+        intro    = m.get("intro") or ""
 
+        # 评分颜色
         try:
             r = float(rating)
             rc = "high" if r >= 8 else ("mid" if r >= 6 else "low")
         except:
             rc = "none"
 
+        # 豆瓣链接
         if db_link:
             hint = f' <span class="fn">({found})</span>' if found and found != m["title"] else ""
             db_cell = f'<a href="{db_link}" target="_blank" class="dbl">豆瓣{hint}</a>'
         else:
             db_cell = '<span class="na">暂无</span>'
 
-        rows += f"""
-      <tr>
-        <td class="idx">{i}</td>
-        <td class="tt"><a href="{m['source_url']}" target="_blank">{m['title']}</a></td>
-        <td class="dt">{date_fmt}</td>
-        <td class="rt {rc}">{rating}</td>
-        <td class="ct">{count}</td>
-        <td class="db">{db_cell}</td>
-      </tr>"""
+        # 详情信息
+        info_parts = []
+        if country:
+            info_parts.append(f"📍 {country}")
+        if category:
+            info_parts.append(f"🎭 {category}")
+        if actors:
+            info_parts.append(f"🎬 {actors}")
+        info_html = "".join([f'<p class="info">{p}</p>' for p in info_parts])
+        
+        intro_html = f'<p class="intro">{intro}</p>' if intro else ''
+
+        cards += f"""
+      <div class="card">
+        <div class="card-header">
+          <span class="num">{i}</span>
+          <span class="title"><a href="{m['source_url']}" target="_blank">{m['title']}</a></span>
+          <span class="date">{date_fmt}</span>
+        </div>
+        <div class="card-body">
+          {info_html}
+          {intro_html}
+        </div>
+        <div class="card-footer">
+          <span class="rating {rc}">{rating}</span>
+          <span class="count">{count}</span>
+          {db_cell}
+        </div>
+      </div>"""
 
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -173,44 +248,41 @@ def render_html(all_movies):
 <style>
 *{{box-sizing:border-box;margin:0;padding:0}}
 body{{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f4f4f8;color:#333}}
-.wrap{{max-width:980px;margin:32px auto;padding:0 16px}}
+.wrap{{max-width:900px;margin:32px auto;padding:0 16px}}
 h1{{font-size:22px;font-weight:700;margin-bottom:4px}}
 .sub{{color:#999;font-size:13px;margin-bottom:22px}}
-table{{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.08)}}
-thead{{background:#1a1a2e;color:#fff}}
-thead th{{padding:13px 11px;text-align:left;font-size:13px;font-weight:600}}
-tbody tr{{border-bottom:1px solid #f0f0f0;transition:background .12s}}
-tbody tr:last-child{{border-bottom:none}}
-tbody tr:hover{{background:#fafafa}}
-td{{padding:11px;font-size:14px;vertical-align:middle}}
-.idx{{color:#ccc;width:32px;text-align:center}}
-.tt a{{color:#1a73e8;text-decoration:none;font-weight:500}}
-.tt a:hover{{text-decoration:underline}}
-.dt{{color:#aaa;font-size:13px;white-space:nowrap}}
-.rt{{font-size:18px;font-weight:700;text-align:center;width:64px}}
-.rt.high{{color:#e06c00}}.rt.mid{{color:#27ae60}}.rt.low{{color:#e74c3c}}.rt.none{{color:#ccc;font-size:14px}}
-.ct{{color:#bbb;font-size:12px;white-space:nowrap}}
-.dbl{{color:#06be6b;text-decoration:none;font-size:13px}}
+.cards{{display:flex;flex-direction:column;gap:16px}}
+.card{{background:#fff;border-radius:12px;box-shadow:0 2px 14px rgba(0,0,0,.08);overflow:hidden}}
+.card-header{{display:flex;align-items:center;padding:14px 16px;background:#1a1a2e;color:#fff;gap:10px}}
+.card-header .num{{background:rgba(255,255,255,.2);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}}
+.card-header .title{{flex:1;font-size:16px;font-weight:600}}
+.card-header .title a{{color:#fff;text-decoration:none}}
+.card-header .title a:hover{{text-decoration:underline}}
+.card-header .date{{font-size:12px;opacity:.8}}
+.card-body{{padding:14px 16px}}
+.info{{font-size:13px;color:#666;line-height:1.6;margin-bottom:4px}}
+.info{{font-size:13px;color:#666;line-height:1.6}}
+.info:first-child{{margin-top:0}}
+.intro{{font-size:13px;color:#888;line-height:1.5;margin-top:8px;padding-top:8px;border-top:1px solid #eee}}
+.card-footer{{display:flex;align-items:center;padding:12px 16px;background:#fafafa;border-top:1px solid #f0f0f0;gap:12px}}
+.rating{{font-size:20px;font-weight:700}}
+.rating.high{{color:#e06c00}}.rating.mid{{color:#27ae60}}.rating.low{{color:#e74c3c}}.rating.none{{color:#ccc;font-size:16px}}
+.count{{color:#bbb;font-size:12px}}
+.dbl{{color:#06be6b;text-decoration:none;font-size:13px;margin-left:auto}}
 .dbl:hover{{text-decoration:underline}}
-.na{{color:#ccc;font-size:13px}}
-.fn{{color:#bbb;font-size:11px}}
-.legend{{display:flex;gap:14px;margin-top:14px;font-size:12px;color:#aaa}}
+.na{{color:#ccc;font-size:13px;margin-left:auto}}
+.legend{{display:flex;gap:14px;margin-top:20px;font-size:12px;color:#aaa}}
 .dot{{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:3px}}
 .dot.high{{background:#e06c00}}.dot.mid{{background:#27ae60}}.dot.low{{background:#e74c3c}}
-footer{{text-align:center;color:#ccc;font-size:12px;margin-top:18px;padding-bottom:32px}}
+footer{{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-bottom:32px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>🎬 每日新片豆瓣评分</h1>
   <p class="sub">数据来源：电影港 · 豆瓣 &nbsp;|&nbsp; 最后更新：{updated_at} &nbsp;|&nbsp; 共 {len(all_movies)} 部</p>
-  <table>
-    <thead>
-      <tr><th>#</th><th>电影名称</th><th>更新日期</th><th>豆瓣评分</th><th>评分人数</th><th>豆瓣页面</th></tr>
-    </thead>
-    <tbody>{rows}
-    </tbody>
-  </table>
+  <div class="cards">{cards}
+  </div>
   <div class="legend">
     <span><span class="dot high"></span>8分及以上</span>
     <span><span class="dot mid"></span>6~8分</span>
@@ -243,8 +315,18 @@ def main():
         render_html(existing)
         return
 
-    print(f"\n🆕 新增 {len(to_add)} 部，开始查豆瓣评分...\n")
+    print(f"\n🆕 新增 {len(to_add)} 部，开始处理...\n")
     for m in to_add:
+        # 抓取详情页
+        print(f"  📄 抓取详情: {m['title']}")
+        detail = fetch_movie_detail(m["source_url"])
+        m["country"] = detail["country"]
+        m["category"] = detail["category"]
+        m["actors"] = detail["actors"]
+        m["intro"] = detail["intro"]
+        time.sleep(0.8)
+        
+        # 查豆瓣
         rating, count, link, found = search_douban(m["title"])
         m["rating"]      = rating
         m["count"]       = count
@@ -254,16 +336,17 @@ def main():
         print(f"  🎬 {m['title']:<20} 豆瓣: {rating or '暂无'}")
         time.sleep(1.5)
 
-    all_movies = to_add + existing          # 新的排前面
+    all_movies = to_add + existing
     save_data(all_movies)
     render_html(all_movies)
 
     print(f"\n{'─'*60}")
-    print(f"{'#':<4}{'电影名称':<22}{'日期':<12}{'豆瓣'}")
+    print(f"{'#':<4}{'电影名称':<20}{'产地':<10}{'类别':<14}{'豆瓣'}")
     print(f"{'─'*60}")
     for i, m in enumerate(to_add, 1):
-        d = f"{m['date'][:4]}-{m['date'][4:6]}-{m['date'][6:]}"
-        print(f"{i:<4}{m['title']:<22}{d:<12}{m.get('rating') or '—'}")
+        c = m.get("country", "")[:8]
+        cat = m.get("category", "")[:12]
+        print(f"{i:<4}{m['title']:<20}{c:<10}{cat:<14}{m.get('rating') or '—'}")
     print(f"{'─'*60}\n")
 
 

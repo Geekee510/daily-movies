@@ -7,68 +7,89 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f4f4f8;color:#333}
-.wrap{max-width:980px;margin:32px auto;padding:0 16px}
+.wrap{max-width:900px;margin:32px auto;padding:0 16px}
 h1{font-size:22px;font-weight:700;margin-bottom:4px}
 .sub{color:#999;font-size:13px;margin-bottom:22px}
-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.08)}
-thead{background:#1a1a2e;color:#fff}
-thead th{padding:13px 11px;text-align:left;font-size:13px;font-weight:600}
-tbody tr{border-bottom:1px solid #f0f0f0;transition:background .12s}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:#fafafa}
-td{padding:11px;font-size:14px;vertical-align:middle}
-.idx{color:#ccc;width:32px;text-align:center}
-.tt a{color:#1a73e8;text-decoration:none;font-weight:500}
-.tt a:hover{text-decoration:underline}
-.dt{color:#aaa;font-size:13px;white-space:nowrap}
-.rt{font-size:18px;font-weight:700;text-align:center;width:64px}
-.rt.high{color:#e06c00}.rt.mid{color:#27ae60}.rt.low{color:#e74c3c}.rt.none{color:#ccc;font-size:14px}
-.ct{color:#bbb;font-size:12px;white-space:nowrap}
-.dbl{color:#06be6b;text-decoration:none;font-size:13px}
+.cards{display:flex;flex-direction:column;gap:16px}
+.card{background:#fff;border-radius:12px;box-shadow:0 2px 14px rgba(0,0,0,.08);overflow:hidden}
+.card-header{display:flex;align-items:center;padding:14px 16px;background:#1a1a2e;color:#fff;gap:10px}
+.card-header .num{background:rgba(255,255,255,.2);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}
+.card-header .title{flex:1;font-size:16px;font-weight:600}
+.card-header .title a{color:#fff;text-decoration:none}
+.card-header .title a:hover{text-decoration:underline}
+.card-header .date{font-size:12px;opacity:.8}
+.card-body{padding:14px 16px}
+.info{font-size:13px;color:#666;line-height:1.6;margin-bottom:4px}
+.info{font-size:13px;color:#666;line-height:1.6}
+.info:first-child{margin-top:0}
+.intro{font-size:13px;color:#888;line-height:1.5;margin-top:8px;padding-top:8px;border-top:1px solid #eee}
+.card-footer{display:flex;align-items:center;padding:12px 16px;background:#fafafa;border-top:1px solid #f0f0f0;gap:12px}
+.rating{font-size:20px;font-weight:700}
+.rating.high{color:#e06c00}.rating.mid{color:#27ae60}.rating.low{color:#e74c3c}.rating.none{color:#ccc;font-size:16px}
+.count{color:#bbb;font-size:12px}
+.dbl{color:#06be6b;text-decoration:none;font-size:13px;margin-left:auto}
 .dbl:hover{text-decoration:underline}
-.na{color:#ccc;font-size:13px}
-.fn{color:#bbb;font-size:11px}
-.legend{display:flex;gap:14px;margin-top:14px;font-size:12px;color:#aaa}
+.na{color:#ccc;font-size:13px;margin-left:auto}
+.legend{display:flex;gap:14px;margin-top:20px;font-size:12px;color:#aaa}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:3px}
 .dot.high{background:#e06c00}.dot.mid{background:#27ae60}.dot.low{background:#e74c3c}
-footer{text-align:center;color:#ccc;font-size:12px;margin-top:18px;padding-bottom:32px}
+footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-bottom:32px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>🎬 每日新片豆瓣评分</h1>
-  <p class="sub">数据来源：电影港 · 豆瓣 &nbsp;|&nbsp; 最后更新：2026年03月20日 09:37 &nbsp;|&nbsp; 共 3 部</p>
-  <table>
-    <thead>
-      <tr><th>#</th><th>电影名称</th><th>更新日期</th><th>豆瓣评分</th><th>评分人数</th><th>豆瓣页面</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="idx">1</td>
-        <td class="tt"><a href="https://www.dygangs.net/ys/20260319/59318.htm" target="_blank">惊声尖叫7</a></td>
-        <td class="dt">2026-03-19</td>
-        <td class="rt low">5.6</td>
-        <td class="ct"></td>
-        <td class="db"><span class="na">暂无</span></td>
-      </tr>
-      <tr>
-        <td class="idx">2</td>
-        <td class="tt"><a href="https://www.dygangs.net/ys/20260319/59317.htm" target="_blank">飞行家</a></td>
-        <td class="dt">2026-03-19</td>
-        <td class="rt mid">7.2</td>
-        <td class="ct"></td>
-        <td class="db"><span class="na">暂无</span></td>
-      </tr>
-      <tr>
-        <td class="idx">3</td>
-        <td class="tt"><a href="https://www.dygangs.net/ys/20260319/59315.htm" target="_blank">麦哲伦</a></td>
-        <td class="dt">2026-03-19</td>
-        <td class="rt mid">6.6</td>
-        <td class="ct"></td>
-        <td class="db"><span class="na">暂无</span></td>
-      </tr>
-    </tbody>
-  </table>
+  <p class="sub">数据来源：电影港 · 豆瓣 &nbsp;|&nbsp; 最后更新：2026年03月20日 09:58 &nbsp;|&nbsp; 共 3 部</p>
+  <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <span class="num">1</span>
+          <span class="title"><a href="https://www.dygangs.net/ys/20260319/59318.htm" target="_blank">惊声尖叫7</a></span>
+          <span class="date">2026-03-19</span>
+        </div>
+        <div class="card-body">
+          <p class="info">📍 美国</p><p class="info">🎭 悬疑 / 惊悚 / 恐怖</p><p class="info">🎬 内芙·坎贝尔 / Neve / Campbell / 伊莎贝尔·梅 / Isabel</p>
+          <p class="intro">新的鬼脸杀手出现在Sidney Prescott（内芙·坎贝尔 饰）过着新生活的宁静小镇，她心底里最恐惧的事已在现实生活中发生，因为她的女儿（伊莎贝尔·梅 饰）成为了鬼脸杀手下一个目标。为了保护家人，...</p>
+        </div>
+        <div class="card-footer">
+          <span class="rating low">5.6</span>
+          <span class="count"></span>
+          <span class="na">暂无</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="num">2</span>
+          <span class="title"><a href="https://www.dygangs.net/ys/20260319/59317.htm" target="_blank">飞行家</a></span>
+          <span class="date">2026-03-19</span>
+        </div>
+        <div class="card-body">
+          
+          <p class="intro">影片讲述东北“犟种”李明奇（蒋奇明 饰）和他的妻子高雅风（李雪琴 饰）如何用一辈子的时间，守护一个“飞上天”的大梦想。在生活的重压下，这个梦想时而成为谋生的工具，时而又成为照亮绝境的唯一光芒。为了托起...</p>
+        </div>
+        <div class="card-footer">
+          <span class="rating mid">7.2</span>
+          <span class="count"></span>
+          <span class="na">暂无</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="num">3</span>
+          <span class="title"><a href="https://www.dygangs.net/ys/20260319/59315.htm" target="_blank">麦哲伦</a></span>
+          <span class="date">2026-03-19</span>
+        </div>
+        <div class="card-body">
+          <p class="info">📍 西班牙 / 葡萄牙 / 菲律宾</p><p class="info">🎭 剧情 / 传记 / 历史</p><p class="info">🎬 盖尔·加西亚·贝纳尔 / Gael / García / Bernal / 达里奥·亚斯贝克·贝纳尔</p>
+          <p class="intro">麦哲伦是一位航海家，他秉持人道主义精神和对正义的信仰，反抗国王的权力。然而，当他最终掌管香料舰队，完成首次环球航行后，他的旅程又将如何揭开他自身的谜团呢？</p>
+        </div>
+        <div class="card-footer">
+          <span class="rating mid">6.6</span>
+          <span class="count"></span>
+          <span class="na">暂无</span>
+        </div>
+      </div>
+  </div>
   <div class="legend">
     <span><span class="dot high"></span>8分及以上</span>
     <span><span class="dot mid"></span>6~8分</span>
