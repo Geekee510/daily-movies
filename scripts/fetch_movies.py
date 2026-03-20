@@ -73,7 +73,7 @@ def fetch_new_movies(days=2):
 # 1.1 抓取电影详情页信息
 # ──────────────────────────────────────────
 def fetch_movie_detail(url):
-    """从电影港详情页抓取：产地、类别、主演、简介"""
+    """从电影港详情页抓取：产地、类别、导演、主演、简介"""
     try:
         resp = requests.get(url, headers=HEADERS, timeout=15)
         resp.encoding = "gb2312"
@@ -88,6 +88,12 @@ def fetch_movie_detail(url):
         # 类别
         category_match = re.search(r"◎类　　别[:：]\s*(.+?)(?:\n|$)", text)
         category = category_match.group(1).strip() if category_match else ""
+        
+        # 导演
+        director_match = re.search(r"◎导　　演[:：]\s*(.+?)(?:\n◎|$)", text)
+        director = director_match.group(1).strip() if director_match else ""
+        # 只取导演名字（不要英文名）
+        director = director.split(" ")[0] if director else ""
         
         # 主演
         actor_match = re.search(r"◎主　　演[:：]\s*(.+?)(?:\n◎|$)", text, re.DOTALL)
@@ -108,12 +114,13 @@ def fetch_movie_detail(url):
         return {
             "country": country,
             "category": category,
+            "director": director,
             "actors": actors_short,
             "intro": intro
         }
     except Exception as e:
         print(f"  ⚠️  详情页抓取失败: {e}")
-        return {"country": "", "category": "", "actors": "", "intro": ""}
+        return {"country": "", "category": "", "director": "", "actors": "", "intro": ""}
 
 
 # ──────────────────────────────────────────
@@ -189,9 +196,10 @@ def render_html(all_movies):
         found    = m.get("found_name") or ""
         date_fmt = f"{m['date'][:4]}-{m['date'][4:6]}-{m['date'][6:]}"
         
-        # 新增字段
+        # 字段
         country  = m.get("country") or ""
         category = m.get("category") or ""
+        director = m.get("director") or ""
         actors   = m.get("actors") or ""
         intro    = m.get("intro") or ""
 
@@ -209,14 +217,32 @@ def render_html(all_movies):
         else:
             db_cell = '<span class="na">暂无</span>'
 
+        # 导演链接（百度搜索）
+        director_html = ""
+        if director:
+            director_link = f"https://www.baidu.com/s?wd={quote(director)}"
+            director_html = f'🎬 <a href="{director_link}" target="_blank" class="search-link">{director}</a>'
+
+        # 主演链接（百度搜索，每个主演单独链接）
+        actors_html = ""
+        if actors:
+            actor_links = []
+            for a in actors.split(" / "):
+                if a:
+                    link = f"https://www.baidu.com/s?wd={quote(a)}"
+                    actor_links.append(f'<a href="{link}" target="_blank" class="search-link">{a}</a>')
+            actors_html = "🎬 " + " / ".join(actor_links)
+
         # 详情信息
         info_parts = []
         if country:
             info_parts.append(f"📍 {country}")
         if category:
             info_parts.append(f"🎭 {category}")
-        if actors:
-            info_parts.append(f"🎬 {actors}")
+        if director_html:
+            info_parts.append(director_html)
+        if actors_html:
+            info_parts.append(actors_html)
         info_html = "".join([f'<p class="info">{p}</p>' for p in info_parts])
         
         intro_html = f'<p class="intro">{intro}</p>' if intro else ''
@@ -263,6 +289,8 @@ h1{{font-size:22px;font-weight:700;margin-bottom:4px}}
 .info{{font-size:13px;color:#666;line-height:1.6;margin-bottom:4px}}
 .info{{font-size:13px;color:#666;line-height:1.6}}
 .info:first-child{{margin-top:0}}
+.search-link{{color:#1a73e8;text-decoration:none}}
+.search-link:hover{{text-decoration:underline}}
 .intro{{font-size:13px;color:#888;line-height:1.5;margin-top:8px;padding-top:8px;border-top:1px solid #eee}}
 .card-footer{{display:flex;align-items:center;padding:12px 16px;background:#fafafa;border-top:1px solid #f0f0f0;gap:12px}}
 .rating{{font-size:20px;font-weight:700}}
@@ -322,6 +350,7 @@ def main():
         detail = fetch_movie_detail(m["source_url"])
         m["country"] = detail["country"]
         m["category"] = detail["category"]
+        m["director"] = detail["director"]
         m["actors"] = detail["actors"]
         m["intro"] = detail["intro"]
         time.sleep(0.8)
