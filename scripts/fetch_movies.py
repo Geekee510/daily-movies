@@ -326,7 +326,7 @@ footer{{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-bott
 </head>
 <body>
 <div class="wrap">
-  <h1>🎬 每日新片豆瓣评分</h1>
+  <h1>🎬 每周新片豆瓣评分</h1>
   <p class="sub">数据来源：电影港 · 豆瓣 &nbsp;|&nbsp; 最后更新：{updated_at} &nbsp;|&nbsp; 共 {len(all_movies)} 部</p>
   <div class="cards">{cards}
   </div>
@@ -335,7 +335,7 @@ footer{{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-bott
     <span><span class="dot mid"></span>6~8分</span>
     <span><span class="dot low"></span>6分以下</span>
   </div>
-  <footer>每天自动更新 · 收藏此页书签永久有效</footer>
+  <footer>每周自动更新 · 收藏此页书签永久有效</footer>
 </div>
 </body>
 </html>"""
