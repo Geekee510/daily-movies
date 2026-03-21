@@ -204,7 +204,10 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
   </div>
   <footer>每周自动更新 · 收藏此页书签永久有效</footer>
   <div class="contact">📧 联系邮箱：<a href="mailto:james_tx7878@163.com">james_tx7878@163.com</a></div>
-  <div class="counter" id="visitor-counter">加载中...</div>
+  <div class="counter">
+    <span id="busuanzi_value_site_pv"></span>
+    <span id="busuanzi_value_site_uv"></span>
+  </div>
 </div>
 <script>
 function showPage(n){
@@ -214,35 +217,20 @@ function showPage(n){
   document.querySelectorAll('.page-btn')[n-1]&&document.querySelectorAll('.page-btn')[n-1].classList.add('active');
 }
 showPage(1);
-
-// 访问统计（使用countapi.xyz）
-(function(){
-  var ns = 'weekly-movies';
-  var today = new Date().toISOString().slice(0,10).replace(/-/g,'');
-  
-  // 同时记录「每日PV」和「总PV」
-  Promise.all([
-    fetch('https://api.countapi.xyz/get/' + ns + '/today'),
-    fetch('https://api.countapi.xyz/get/' + ns + '/total')
-  ]).then(function(results){
-    return Promise.all(results.map(function(r){ return r.json(); }));
-  }).then(function(data){
-    var todayCount = data[0].value || 0;
-    var totalCount = data[1].value || 0;
-    
-    // 累加访问
-    fetch('https://api.countapi.xyz/hit/' + ns + '/today');
-    fetch('https://api.countapi.xyz/hit/' + ns + '/total');
-    
-    // 延迟更新显示，确保计数已+1
-    setTimeout(function(){
-      document.getElementById('visitor-counter').innerHTML = 
-        '🎉 你是今日第 <strong>' + (todayCount + 1) + '</strong> 个来访者，网站共计 <strong>' + (totalCount + 1) + '</strong> 次访问';
-    }, 300);
-  }).catch(function(){
-    document.getElementById('visitor-counter').innerHTML = '访问统计暂时不可用';
-  });
-})();
+</script>
+<!-- 不蒜子统计 -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script>
+window.onload = function() {
+  setTimeout(function() {
+    var pv = document.getElementById('busuanzi_value_site_pv');
+    var uv = document.getElementById('busuanzi_value_site_uv');
+    if (pv && uv) {
+      document.querySelector('.counter').innerHTML = 
+        '🎉 你是今日第 <strong>' + pv.innerText + '</strong> 个来访者，网站共计 <strong>' + uv.innerText + '</strong> 次访问';
+    }
+  }, 500);
+};
 </script>
 
 </body>
