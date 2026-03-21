@@ -143,7 +143,7 @@ def fetch_movie_detail(url):
 
 
 # ──────────────────────────────────────────
-# 2. 查豆瓣评分
+# 2. 查豆瓣评分（严格匹配电影名）
 # ──────────────────────────────────────────
 def search_douban(title):
     search_url = f"https://www.douban.com/search?cat=1002&q={quote(title)}"
@@ -151,10 +151,40 @@ def search_douban(title):
         resp = requests.get(search_url, headers=HEADERS, timeout=12)
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "html.parser")
-        result = soup.select_one(".result-list .result")
-        if not result:
+        results = soup.select(".result-list .result")
+        
+        if not results:
             return None, None, None, None
 
+        # 严格匹配：电影名必须在搜索结果标题中包含（或完全一致）
+        for result in results:
+            name_tag = result.select_one(".title a")
+            found_name = name_tag.get_text(strip=True) if name_tag else ""
+            
+            # 检查是否匹配：精确包含原始电影名
+            if found_name and title in found_name:
+                rating_tag = result.select_one(".rating_nums")
+                rating = rating_tag.get_text(strip=True) if rating_tag else None
+
+                count_tag = result.select_one(".subject-cast")
+                count = None
+                if count_tag:
+                    cm = re.search(r"([\d,]+)人", count_tag.get_text())
+                    if cm:
+                        count = cm.group(1).replace(",", "") + "人"
+
+                link_tag = result.select_one("a[href*='douban.com/subject']")
+                link = link_tag["href"].split("?")[0] if link_tag else None
+
+                print(f"    ✅ 精确匹配: {title} → {found_name}")
+                return rating, count, link, found_name
+        
+        # 如果没有精确匹配，返回搜索结果的第一个（但打印警告）
+        result = results[0]
+        name_tag = result.select_one(".title a")
+        found_name = name_tag.get_text(strip=True) if name_tag else ""
+        print(f"    ⚠️  未精确匹配 [{title}] → 使用首个结果: {found_name}")
+        
         rating_tag = result.select_one(".rating_nums")
         rating = rating_tag.get_text(strip=True) if rating_tag else None
 
@@ -167,9 +197,6 @@ def search_douban(title):
 
         link_tag = result.select_one("a[href*='douban.com/subject']")
         link = link_tag["href"].split("?")[0] if link_tag else None
-
-        name_tag = result.select_one(".title a")
-        found_name = name_tag.get_text(strip=True) if name_tag else ""
 
         return rating, count, link, found_name
     except Exception as e:
