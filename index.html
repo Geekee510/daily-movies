@@ -40,6 +40,10 @@ h1{font-size:22px;font-weight:700;margin-bottom:4px}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:3px}
 .dot.high{background:#e06c00}.dot.mid{background:#27ae60}.dot.low{background:#e74c3c}
 footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-bottom:32px}
+.contact{text-align:center;margin-top:16px;font-size:13px;color:#888}
+.contact a{color:#1a73e8;text-decoration:none}
+.contact a:hover{text-decoration:underline}
+.counter{text-align:center;margin-top:12px;font-size:13px;color:#666;background:#f8f8fa;padding:10px;border-radius:8px}
 </style>
 </head>
 <body>
@@ -199,6 +203,8 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
     <span><span class="dot low"></span>6分以下</span>
   </div>
   <footer>每周自动更新 · 收藏此页书签永久有效</footer>
+  <div class="contact">📧 联系邮箱：<a href="mailto:james_tx7878@163.com">james_tx7878@163.com</a></div>
+  <div class="counter" id="visitor-counter">加载中...</div>
 </div>
 <script>
 function showPage(n){
@@ -208,6 +214,41 @@ function showPage(n){
   document.querySelectorAll('.page-btn')[n-1]&&document.querySelectorAll('.page-btn')[n-1].classList.add('active');
 }
 showPage(1);
+
+// 访问统计
+(function(){
+  var namespace = 'daily-movies-page';
+  var today = new Date().toISOString().split('T')[0];
+  var dailyKey = 'total-' + today;
+  var totalKey = 'total';
+
+  // 获取今日访问量
+  fetch('https://api.countapi.xyz/get/' + namespace + '/' + dailyKey)
+    .then(r=>r.json())
+    .then(daily=>{
+      // 增加今日访问
+      return fetch('https://api.countapi.xyz/hit/' + namespace + '/' + dailyKey)
+        .then(r=>r.json())
+        .then(hit=>({daily:hit.value,total:daily.value}));
+    })
+    .then(data=>{
+      // 获取总访问量
+      return fetch('https://api.countapi.xyz/get/' + namespace + '/' + totalKey)
+        .then(r=>r.json())
+        .then(total=>{
+          // 增加总访问
+          fetch('https://api.countapi.xyz/hit/' + namespace + '/' + totalKey);
+          return {daily:data.daily,total:total.value};
+        });
+    })
+    .then(data=>{
+      document.getElementById('visitor-counter').innerHTML =
+        '🎉 你是今日第 <strong>' + data.daily + '</strong> 个来访者，网站共计 <strong>' + data.total + '</strong> 次访问';
+    })
+    .catch(()=>{
+      document.getElementById('visitor-counter').innerHTML = '访问统计加载中...';
+    });
+})();
 </script>
 </body>
 </html>
