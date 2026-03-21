@@ -40,12 +40,16 @@ h1{font-size:22px;font-weight:700;margin-bottom:4px}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:3px}
 .dot.high{background:#e06c00}.dot.mid{background:#27ae60}.dot.low{background:#e74c3c}
 footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-bottom:32px}
+.contact{text-align:center;margin-top:16px;font-size:13px;color:#888}
+.contact a{color:#1a73e8;text-decoration:none}
+.contact a:hover{text-decoration:underline}
+.counter{text-align:center;margin-top:12px;font-size:13px;color:#666;background:#f8f8fa;padding:10px;border-radius:8px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>🎬 每周新片豆瓣评分</h1>
-  <p class="sub">数据来源：电影港 · 豆瓣 &nbsp;|&nbsp; 最后更新：2026年03月21日 10:45 &nbsp;|&nbsp; 共 15 部</p>
+  <p class="sub">数据来源：电影港 · 豆瓣 &nbsp;|&nbsp; 最后更新：2026年03月21日 10:48 &nbsp;|&nbsp; 共 15 部</p>
   <div class="cards">
       <div class="card page-1">
         <div class="card-header">
@@ -295,6 +299,11 @@ footer{text-align:center;color:#ccc;font-size:12px;margin-top:24px;padding-botto
     <span><span class="dot low"></span>6分以下</span>
   </div>
   <footer>每周自动更新 · 收藏此页书签永久有效</footer>
+  <div class="contact">📧 联系邮箱：<a href="mailto:james_tx7878@163.com">james_tx7878@163.com</a></div>
+  <div class="counter">
+    <span id="busuanzi_value_site_pv"></span>
+    <span id="busuanzi_value_site_uv"></span>
+  </div>
 </div>
 <script>
 function showPage(n){
@@ -304,6 +313,20 @@ function showPage(n){
   document.querySelectorAll('.page-btn')[n-1]&&document.querySelectorAll('.page-btn')[n-1].classList.add('active');
 }
 showPage(1);
+</script>
+<!-- 不蒜子统计 -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script>
+window.onload = function() {
+  setTimeout(function() {
+    var pv = document.getElementById('busuanzi_value_site_pv');
+    var uv = document.getElementById('busuanzi_value_site_uv');
+    if (pv && uv) {
+      document.querySelector('.counter').innerHTML =
+        '🎉 你是今日第 <strong>' + pv.innerText + '</strong> 个来访者，网站共计 <strong>' + uv.innerText + '</strong> 次访问';
+    }
+  }, 500);
+};
 </script>
 </body>
 </html>
